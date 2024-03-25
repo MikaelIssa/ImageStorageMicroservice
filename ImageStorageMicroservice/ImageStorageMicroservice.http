@@ -1,0 +1,23 @@
+@ImageStorageMicroservice_HostAddress = http://localhost:5284
+
+GET {{ImageStorageMicroservice_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+
+Hej jag ska skapa en MicroService för bildlagring i c# .NET  Vi behöver en Microservice som kan spara dem bilder som kunden laddar upp i samband med
+köp av poster ifrån någon av våra webbutiker PosterAnd...
+Detta för att kunna utföra våran verksamhet effektivt i samråd med tryckeri.
+SPECIFIKATIONER
+1. Mjukvaran ska kunna, via ett Rest API kunna ta emot
+bildfiler tillhörande försäljning av Posters från bl.a PosterAndPaw, PosterAndBoat m.fl.
+2. Mjukvaran ska spara bilderna på hårddisk i en mappstruktur som separerar dem efter
+butik som utförde försäljningen, uppdelad i undermappar månadsvis , hur ska den mappen se ut om du kan visa det med
+3. Mjukvaran ska kunna säkerställa kvalitéten i en bild, initialt genom bildens dimensioner,
+för att kunna garantera en kvalitativ produkt till slutkund.
+4. Mjukvaran ska kunna säkerställa att bilderna får en statisk besöksaddress. Detta
+implementeras dock med DevOps (vid deploy).
+5. Mjukvaran behöver ha en Dockerfile och en Container-orkestrering (docker-compose). 
+d
+varje punkt jag har skrivit om vad jag behöver för att projektet ska fungera så vill jag ha en detaljerad beskrivning på varje punkt jag skrivit till dig , jag vill ha med allt , vilken struktur , vilken map, vilken fil samt detaljerad kod i varje fil och vad allt gör
