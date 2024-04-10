@@ -1,13 +1,14 @@
 ﻿namespace ImageStorageMicroservice.Models
 {
-    //En modell som representerar en bild.
     public class Image
     {
-        public int Id { get; set; }
-        public string FileName { get; set; }
-        public string FilePath { get; set; }
-        public string StoreId { get; set; }
-        public DateTime UploadDate { get; set; }
-        public int CustomerId { get; set; }
+        public int Id { get; set; } // Unikt ID för bilden (om du behöver spara det i en databas)
+        public string FileName { get; set; } // Filnamnet för bilden
+        public string StoreName { get; set; } // Butikens namn
+        public string FilePath { get; set; } // Sökvägen till bilden på hårddisken
+        public int Width { get; set; } // Bredden på bilden i pixlar
+        public int Height { get; set; } // Höjden på bilden i pixlar
+        public DateTime UploadedAt { get; set; } // Datum och tid för uppladdning av bilden
+                                                 // Det används för att spåra när bilden laddades upp
     }
 }

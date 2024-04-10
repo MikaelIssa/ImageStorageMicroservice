@@ -1,40 +1,24 @@
-﻿namespace ImageStorageMicroservice.Utils
+﻿using System.Drawing;
+namespace ImageStorageMicroservice.Utils
 {
-    //En hjälparklass som innehåller metoder för bildrelaterade operationer, såsom kvalitetskontroll och sparande av bilder.
     public static class ImageHelper
     {
-        public static string GenerateUniqueFileName(string extension)
+        public static bool IsImageValid(Image image, int minWidth, int minHeight)
         {
-            // Genererar ett unikt filnamn genom att använda Guid.NewGuid() och lägger till den givna filändelsen.
-            return $"{Guid.NewGuid().ToString()}{extension}";
+            /* Detta är en metod som används för att kontrollera om en bild är giltig baserat på dess dimensioner. 
+             * Den tar in en bild, samt minimibredd och minimihöjd som parametrar. 
+             * Metoden jämför sedan bildens bredd och höjd med de angivna minimidimensionerna och returnerar true om bilden är tillräckligt stor, annars returnerar den false.
+             */
+            return image.Width >= minWidth && image.Height >= minHeight;
         }
 
-        public static string GenerateImageUrl(string filePath)
+        public static Size GetImageDimensions(Image image)
         {
-            // Genererar en offentlig URL för en sparad bild genom att kombinera en bas-URL med filnamnet från filvägen.
-            // Implementera logik för att generera en offentlig URL baserat på filvägen
-            var baseUrl = "https://example.com/images/";
-            return baseUrl + Path.GetFileName(filePath);
-        }
-
-        public static bool IsImageSizeValid(IFormFile image, int maxSizeInBytes)
-        {
-            // Kontrollerar om storleken på den uppladdade bilden är inom det tillåtna gränsvärdet (maxSizeInBytes).
-            // Implementera logik för att kontrollera att bildens storlek inte överstiger maxgränsen
-            return image.Length <= maxSizeInBytes;
-        }
-
-        public static bool IsImageFormatValid(IFormFile image, string[] allowedFormats)
-        {
-            // Kontrollerar om filformatet för den uppladdade bilden är en av de tillåtna formaten i allowedFormats.
-            // Implementera logik för att kontrollera att bildens filformat är acceptabelt
-            var fileExtension = Path.GetExtension(image.FileName).ToLowerInvariant();
-            foreach (var format in allowedFormats)
-            {
-                if (fileExtension == format)
-                    return true;
-            }
-            return false;
+            /* Denna metod används för att hämta dimensionerna (bredd och höjd) på en bild. 
+             * Den tar in en bild som parameter och skapar sedan en ny instans av klassen Size med bildens bredd och höjd som parametrar. 
+             * Denna storlek kan sedan användas för att få information om bildens dimensioner för vidare bearbetning eller visning.
+             */
+            return new Size(image.Width, image.Height);
         }
     }
 }

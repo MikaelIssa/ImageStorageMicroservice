@@ -7,114 +7,95 @@ using ImageStorageMicroservice;
 
 namespace ImageStorageMicroservice.Controllers
 {
-    //Hanterar inkommande HTTP-begäranden för bilduppladdning och dirigera dem till lämplig tjänst.
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("[controller]")]
     public class ImageController : ControllerBase
     {
-        private readonly ImageService _imageService;
+        private readonly ILogger<ImageController> _logger;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public ImageController(ImageService imageService)
+        public ImageController(ILogger<ImageController> logger, IWebHostEnvironment hostingEnvironment)
         {
-            _imageService = imageService;
+            _logger = logger;
+            _hostingEnvironment = hostingEnvironment;
         }
 
-        [HttpPost("upload")]
-        public async Task<IActionResult> UploadImage([FromForm] IFormFile image)
+        [HttpPost]
+        public IActionResult UploadImage(IFormFile image, string storeName)
         {
-            // Tar emot en bildfil från klienten och kontrollerar dess kvalitet.
-            // Sparar bilden och returnerar en URL till den sparade bilden om kvalitetskontrollen passerar.
+
+            /*
+             * Denna åtgärd tar emot en HTTP POST-förfrågan med en bildfil och en butiksparameter. 
+             * Den sparar sedan bilden på servern och returnerar en URL till den sparade bilden i en HTTP-respons.
+             * Om det uppstår något fel under uppladdningsprocessen, loggar den felet och returnerar en lämplig felrespons.
+             */
+
             try
             {
                 if (image == null || image.Length == 0)
-                    return BadRequest("No image uploaded.");
+                    return BadRequest("Invalid image file");
 
-                // Kvalitetskontroll av bilden
-                if (!_imageService.IsImageQualityAcceptable(image))
-                    return BadRequest("Image quality is not acceptable.");
+                var uploadsFolder = Path.Combine(_hostingEnvironment.ContentRootPath, "Images", storeName, DateTime.Now.ToString("yyyy-MM"));
+                Directory.CreateDirectory(uploadsFolder);
 
-                // Spara bilden
-                var imageUrl = await _imageService.SaveImageAsync(image);
+                var uniqueFileName = $"{Guid.NewGuid().ToString()}{Path.GetExtension(image.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                // Returnera URL för sparad bild
-                return Ok(imageUrl);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    image.CopyTo(fileStream);
+                }
+
+                var imageUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/images/{storeName}/{DateTime.Now.ToString("yyyy-MM")}/{uniqueFileName}";
+
+                return Ok(new { imageUrl });
             }
             catch (Exception ex)
             {
-                // Logga fel
-                Console.WriteLine($"Error uploading image: {ex.Message}");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error uploading image.");
+                _logger.LogError(ex, "An error occurred while uploading image");
+                return StatusCode(500, "Internal server error");
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetImage(int id)
+        [HttpGet("{storeName}/{year}/{month}/{fileName}")]
+        public IActionResult GetImage(string storeName, int year, int month, string fileName)
         {
-            // Hämtar en specifik bild baserat på dess ID från databasen.
-            // Returnerar bilden om den finns, annars returneras en NotFound-status.
-            try
-            {
-                var image = await _imageService.GetImageByIdAsync(id);
-                if (image == null)
-                    return NotFound();
+            /* Denna åtgärd tar emot en HTTP GET-förfrågan med parametrar för butiksnamn, år, månad och filnamn. 
+             * Den söker efter den begärda bilden på servern och returnerar den som en filrespons. 
+             * Om bilden inte hittas returnerar den en HTTP 404 NotFound-respons.
+             */
+            var imagePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Images", storeName, year.ToString(), month.ToString(), fileName);
 
-                return Ok(image);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error retrieving image: {ex.Message}");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving image.");
-            }
+            if (!System.IO.File.Exists(imagePath))
+                return NotFound();
+
+            var imageBytes = System.IO.File.ReadAllBytes(imagePath);
+            return File(imageBytes, "image/jpeg"); // Adjust content type based on your image type
         }
 
-        [HttpGet("list")]
-        public async Task<IActionResult> GetImages()
+        [HttpGet("{storeName}/{year}/{month}")]
+        public IActionResult GetImages(string storeName, int year, int month)
         {
-            // Hämtar en lista över alla sparade bilder från databasen.
-            // Returnerar listan över bilder om det lyckas, annars returneras en felstatuskod.
-            try
+            /* Denna åtgärd tar emot en HTTP GET-förfrågan med parametrar för butiksnamn, år och månad.
+             * Den listar sedan alla bilder som finns sparade för den angivna butiken och perioden och returnerar en lista med deras URL:er. 
+             * Om det inte finns några bilder returnerar den en HTTP 404 NotFound-respons.
+             */
+            var imagesFolder = Path.Combine(_hostingEnvironment.ContentRootPath, "Images", storeName, year.ToString(), month.ToString());
+
+            if (!Directory.Exists(imagesFolder))
+                return NotFound();
+
+            var imageFiles = Directory.GetFiles(imagesFolder);
+            var imageUrls = imageFiles.Select(imageFile =>
             {
-                var images = await _imageService.GetAllImagesAsync();
-                return Ok(images);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error retrieving images: {ex.Message}");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving images.");
-            }
+                var fileName = Path.GetFileName(imageFile);
+                return $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/images/{storeName}/{year}/{month}/{fileName}";
+            });
+
+            return Ok(imageUrls);
         }
     }
 }
 
 
-
-
-
-    //[ApiController]
-    //[Route("[controller]")]
-    //public class ImageController : ControllerBase
-    //{
-    //    private readonly IImageStorageService _imageStorageService;
-
-    //    public ImageController(IImageStorageService imageStorageService) // Korrigera parameternamnet här
-    //    {
-    //        _imageStorageService = imageStorageService; // Använd this-nyckelordet för att skilja på det lokala attributet och den inkommande parametern
-    //    }
-
-    //    [HttpPost("upload")]
-    //    public IActionResult UploadImage()
-    //    {
-    //        if (HttpContext.Request.Form.Files.Count > 0)
-    //        {
-    //            var file = HttpContext.Request.Form.Files[0];
-    //            var imagePath = _imageStorageService.SaveImage(file);
-    //            return Ok(imagePath);
-    //        }
-    //        else
-    //        {
-    //            return BadRequest("No image uploaded.");
-    //        }
-    //    }
-    //}
-}
 
