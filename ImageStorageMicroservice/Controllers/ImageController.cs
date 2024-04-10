@@ -25,9 +25,12 @@ namespace ImageStorageMicroservice.Controllers
         {
 
             /*
-             * Denna åtgärd tar emot en HTTP POST-förfrågan med en bildfil och en butiksparameter. 
-             * Den sparar sedan bilden på servern och returnerar en URL till den sparade bilden i en HTTP-respons.
-             * Om det uppstår något fel under uppladdningsprocessen, loggar den felet och returnerar en lämplig felrespons.
+               Detta är en HTTP POST-åtgärd som tar emot en bildfil (IFormFile) och en butiksparameter (storeName).
+                Kontrollerar om en giltig bildfil har mottagits. Om inte returnerar den en BadRequest-respons.
+                Skapar en mappstruktur baserat på butiksparametern och det aktuella datumet.
+                Genererar ett unikt filnamn för den uppladdade bilden.
+                Sparar den uppladdade bilden på servern.
+                Returnerar en URL till den sparade bilden i en Ok-respons om uppladdningen lyckades, annars loggar den felet och returnerar en StatusCode 500 (Internal Server Error).
              */
 
             try
@@ -60,9 +63,9 @@ namespace ImageStorageMicroservice.Controllers
         [HttpGet("{storeName}/{year}/{month}/{fileName}")]
         public IActionResult GetImage(string storeName, int year, int month, string fileName)
         {
-            /* Denna åtgärd tar emot en HTTP GET-förfrågan med parametrar för butiksnamn, år, månad och filnamn. 
-             * Den söker efter den begärda bilden på servern och returnerar den som en filrespons. 
-             * Om bilden inte hittas returnerar den en HTTP 404 NotFound-respons.
+            /*  Detta är en HTTP GET-åtgärd som tar emot parametrar för butiksnamn, år, månad och filnamn.
+                Den söker efter den begärda bilden på servern och returnerar den som en filrespons om den hittas.
+                Om bilden inte hittas returnerar den en NotFound-respons.
              */
             var imagePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Images", storeName, year.ToString(), month.ToString(), fileName);
 
@@ -76,9 +79,10 @@ namespace ImageStorageMicroservice.Controllers
         [HttpGet("{storeName}/{year}/{month}")]
         public IActionResult GetImages(string storeName, int year, int month)
         {
-            /* Denna åtgärd tar emot en HTTP GET-förfrågan med parametrar för butiksnamn, år och månad.
-             * Den listar sedan alla bilder som finns sparade för den angivna butiken och perioden och returnerar en lista med deras URL:er. 
-             * Om det inte finns några bilder returnerar den en HTTP 404 NotFound-respons.
+            /*  Detta är en HTTP GET-åtgärd som tar emot parametrar för butiksnamn, år och månad.
+                Den listar alla bilder som finns sparade för den angivna butiken och perioden.
+                Returnerar en lista med URL:er till bilderna i en Ok-respons om det finns bilder.
+                Om det inte finns några bilder returnerar den en NotFound-respons.
              */
             var imagesFolder = Path.Combine(_hostingEnvironment.ContentRootPath, "Images", storeName, year.ToString(), month.ToString());
 

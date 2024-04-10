@@ -19,9 +19,12 @@ namespace ImageStorageMicroservice.Services
 
         public bool IsImageQualityAcceptable(IFormFile image)
         {
-            /* Denna metod tar emot en bildfil och kontrollerar om den uppfyller kvalitetskraven.
-             * Den öppnar bilden och kontrollerar dess dimensioner, filtyp och filstorlek. 
-             * Om bilden uppfyller alla krav returnerar den true, annars false.
+            /*  Denna metod tar emot en bildfil (IFormFile) och kontrollerar om den uppfyller kvalitetskraven.
+                Den öppnar bildfilen och kontrollerar dess dimensioner, filtyp och filstorlek.
+                Om bildens bredd och höjd är mindre än de angivna minimidimensionerna (_minWidth och _minHeight) returnerar den false.
+                Om filtypen inte matchar någon av de tillåtna filtyperna i _allowedFileTypes returnerar den false.
+                Om bildens filstorlek är större än den maximala filstorleken i _maxFileSize returnerar den false.
+                Om alla kvalitetskrav är uppfyllda returnerar den true, annars false.
              */
             using (var img = Image.FromStream(image.OpenReadStream()))
             {
@@ -43,9 +46,10 @@ namespace ImageStorageMicroservice.Services
 
         public string SaveImage(IFormFile image, string storeName)
         {
-            /*Denna metod sparar en bildfil på servern. 
-             * Den tar emot bilden och en butiksparameter, genererar ett unikt filnamn för bilden och skapar en sökväg baserat på butikens namn och aktuell månad. 
-             * Sedan sparas bilden på den genererade sökvägen på hårddisken. Metoden returnerar sökvägen till den sparade bilden.
+            /*  Denna metod sparar en bildfil på servern.
+                Den tar emot bildfilen och en butiksparameter (storeName), genererar ett unikt filnamn för bilden och skapar en sökväg baserat på butikens namn och aktuell månad.
+                Sedan sparar den bildfilen på den genererade sökvägen på hårddisken.
+                Den returnerar sökvägen till den sparade bilden.
              */
 
             // Generera unikt filnamn för den sparade bilden
