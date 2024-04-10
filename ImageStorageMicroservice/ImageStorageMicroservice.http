@@ -1,6 +1,7 @@
-@ImageStorageMicroservice_HostAddress = http://localhost:5284
+@ImageStorageMicroservice_HostAddress = https://localhost:5284
 
-GET {{ImageStorageMicroservice_HostAddress}}/weatherforecast/
+# GET {{ImageStorageMicroservice_HostAddress}}/weatherforecast/
+GET https://localhost:5284/api/status
 Accept: application/json
 
 ###
