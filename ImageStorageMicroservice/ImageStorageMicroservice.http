@@ -1,10 +1,27 @@
-@ImageStorageMicroservice_HostAddress = https://localhost:5284
+@ImageStorageMicroservice_HostAddress = http://localhost:5284
 
-# GET {{ImageStorageMicroservice_HostAddress}}/weatherforecast/
-GET https://localhost:5284/api/status
+# GET för att ladda upp en bild och få tillbaka en URL för den sparade bilden
+POST {{ImageStorageMicroservice_HostAddress}}/image/upload
+Content-Type: multipart/form-data; boundary=--------------------------635361159516058941032139
+
+--------------------------635361159516058941032139
+Content-Disposition: form-data; name="image"; filename="example.jpg"
+Content-Type: image/jpeg
+
+[image data here]
+--------------------------635361159516058941032139
+Content-Disposition: form-data; name="storeName"
+
+PosterAndPaw
+--------------------------635361159516058941032139--
+
+# GET för att hämta en specifik bild
+GET {{ImageStorageMicroservice_HostAddress}}/image/PosterAndPaw/2023/04/example.jpg
+Accept: image/jpeg
+
+# GET för att hämta alla bilder för en given butik och period
+GET {{ImageStorageMicroservice_HostAddress}}/image/PosterAndPaw/2023/04
 Accept: application/json
-
-###
 
 
 Hej jag ska skapa en MicroService för bildlagring i c# .NET  Vi behöver en Microservice som kan spara dem bilder som kunden laddar upp i samband med

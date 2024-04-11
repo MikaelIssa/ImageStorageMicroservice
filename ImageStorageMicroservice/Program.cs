@@ -13,7 +13,7 @@ public class Program
         .ConfigureWebHostDefaults(webBuilder =>
         {
             webBuilder.UseStartup<Startup>()
-                      .UseUrls("https://localhost:5284")
+                      .UseUrls("http://localhost:5284")
                       .UseWebRoot("C:\\Utvecklare\\ImageStorageMicroservice\\wwwroot");
         });
 }

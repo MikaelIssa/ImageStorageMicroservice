@@ -2,6 +2,7 @@
 using ImageStorageMicroservice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models; // Importera nödvändiga namespaces
 
 namespace ImageStorageMicroservice
 {
@@ -37,7 +38,11 @@ namespace ImageStorageMicroservice
             // Lägg till controllers-tjänster
             services.AddControllers();
 
-            // Lägg till andra tjänster och konfigurationer här
+            // Lägg till Swagger-tjänsten
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Image Storage Microservice API", Version = "v1" });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -64,6 +69,13 @@ namespace ImageStorageMicroservice
 
             app.UseAuthentication(); // Lägg till autentisering middleware
             app.UseAuthorization();
+
+            // Aktivera Swagger UI
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Image Storage Microservice API V1");
+            });
 
             app.UseEndpoints(endpoints =>
             {
